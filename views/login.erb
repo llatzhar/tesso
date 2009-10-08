@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja-JP">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="stylesheet" type="text/css" href="tesso.css"/>
+	<title>login | tesso</title>
+</head>
+<body id="account_login">
+
+<div id="container">
+<div id="content_container">
+<div id="content">
+
+<h1>Login</h1>
+<form method="POST" action="auth" class="account_form">
+	<% if @message != nil %>
+	<ul class="errors" style="margin:0px 0px 30px 0px;"><li><%= @message %></li></ul>
+	<% end %>
+	<label for="userid">User ID</label>
+	<input type="text" name="user" id="userid" class="text_field huge wide" value=""/>
+	<label for="password" style="display:block;margin:30px 0px 3px 0px;">Password</label>
+	<input type="password" name="pass" class="text_field huge wide"/>
+	<div style="margin-top:30px;"><input type="submit" value="Login" class="big_button" style="margin-right:15px;"/></div>
+</form>
+
+</div>
+</div>
+</div>
+
+<div id="footer">
+	<strong>Nexis Koyo Corp.</strong>
+	<a href="http://www.do-koyo.co.jp/">Home</a>
+	<a href="help.html">Help</a>
+</div>
+
+</body>
+</html>

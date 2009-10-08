@@ -1,0 +1,27 @@
+--- 
+- name: "adminuser"
+  files: []
+
+  role: admin
+  user_id: admino
+  note: "default admin user"
+  pass: admino
+- name: "user01"
+  files: []
+
+  role: user
+  user_id: user1
+  note: "normal user"
+  pass: user1
+- name: "user have file"
+  files: 
+  - name: Opera-tan-9.svg
+    size: 1289863
+    date: 2008-09-20 14:36:40.769482 +09:00
+    id: "20080920143640"
+    type: image/svg+xml
+    note: ""
+  role: user
+  user_id: user2
+  note: "user2"
+  pass: user2
