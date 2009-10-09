@@ -1,0 +1,33 @@
+
+
+[Webrick]
+
+$ rackup config.ru
+-> http://localhost:9292/hi
+
+TODO
+
+/login
+/logout
+
+[for administration]
+/users
+
+/user/1
+/user/new
+/user/edit/1
+/user/delete/1
+
+[for room admin]
+/rooms
+
+/room/1
+/room/new
+/room/edit/1
+
+[for user]
+/files/1
+
+/file/1
+/file/new
+/file/edit/1
