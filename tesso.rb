@@ -7,6 +7,10 @@ require 'users'
 
 enable :sessions
 
+get '/' do
+   redirect '/login'
+end
+
 get '/hi' do
   'hi'
 end
@@ -19,7 +23,7 @@ post '/auth' do
    users = Users.new
    if users.authenticate(params['user'], params['pass'])
       session[:user] = params['user']
-      redirect '/tesso2/users'
+      redirect '/users'
    else
       @message = 'login faield.'
       erb :login
@@ -31,7 +35,7 @@ get '/bar' do
 end
 
 get '/users' do
-   erb :users
+   erb :users, :locals => { :users => Users.new }
 end
 
 

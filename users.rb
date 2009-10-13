@@ -1,8 +1,17 @@
 require 'yaml_fix'
 
 class Users
+   
+   include Enumerable
+   
    def initialize
       @users = YAML.load_file('users.yml')
+   end
+   
+   def each
+      @users.each do |u|
+         yield u
+      end
    end
    
    def authenticate(user, pass)

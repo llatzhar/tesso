@@ -19,7 +19,7 @@
 	<td>Note</td>
 	<td>Operation</td>
 </th>
-	<% $users.each_with_index do |u, i| %>
+	<% users.each_with_index do |u, i| %>
 	<tr class="parity<%= (i%2).to_s %>">
 	<td></td>
 		<td><span id="user_name"><%= u['name'] %></span></td>
