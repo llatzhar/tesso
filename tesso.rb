@@ -16,7 +16,14 @@ get '/hi' do
 end
 
 get '/login' do
+   session.clear
    erb :login
+end
+
+get '/logout' do
+   session.clear
+   cookie ||= 0
+   redirect '/login'
 end
 
 post '/auth' do
@@ -30,8 +37,12 @@ post '/auth' do
    end
 end
 
-get '/bar' do
-   session[:user]
+get '/whoami' do
+   if session[:user] == nil
+      "not logged in."
+   else
+      "your are '#{session[:user]}'"
+   end
 end
 
 get '/users' do
