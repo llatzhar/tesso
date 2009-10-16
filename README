@@ -14,7 +14,8 @@ TODO
 /users
 
 /user/1
-/user/new
+get /user/new
+post /user/new
 /user/edit/1
 /user/delete/1
 

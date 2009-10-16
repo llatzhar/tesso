@@ -2,6 +2,11 @@
 
 $:.unshift('lib')
 
+CONFIG = {
+   :footer_note => 'some note',
+   :footer_url => 'http://google.com/'
+}
+
 require 'sinatra'
 require 'users'
 
@@ -17,12 +22,12 @@ end
 
 get '/login' do
    session.clear
-   erb :login
+   erb :login, :locals => { :constants => CONFIG }
 end
 
 get '/logout' do
    session.clear
-   cookie ||= 0
+   #cookie ||= 0
    redirect '/login'
 end
 
@@ -33,7 +38,7 @@ post '/auth' do
       redirect '/users'
    else
       @message = 'login faield.'
-      erb :login
+      erb :login, :locals => { :constants => CONFIG }
    end
 end
 
@@ -46,7 +51,40 @@ get '/whoami' do
 end
 
 get '/users' do
-   erb :users, :locals => { :users => Users.new }
+   # todo authorize
+   erb :users, :locals => { :users => Users.new, :constants => CONFIG }
 end
 
+get '/user/new' do
+   # todo authorize
+   erb :user_new, :locals => { :constants => CONFIG }
+end
 
+post '/user/new' do
+   # todo authorize
+   users = Users.new
+   users.add(params)
+   
+   redirect '/users'
+end
+
+get '/user/edit/:name' do
+   # todo authorize
+   erb :user_new, :locals => { :constants => CONFIG }
+end
+
+post '/user/edit/:name' do
+   # todo authorize
+   users = Users.new
+   users.add(params)
+   
+   redirect '/users'
+end
+
+get '/user/delete/:name' do |n|
+   # todo authorize
+   users = Users.new
+   users.delete(n)
+   
+   redirect '/users'
+end

@@ -6,58 +6,38 @@
 	<title>User List | tesso</title>
 </head>
 <body>
-<div id="container">
-<div id="content_container">
-	<div id="content">
-	<h1>Users | <a href="log.rb">Logs</a></h1>
+	<div id="container">
+		<div id="content_container">
+			<div id="content">
+				<h1>Users | <a href="log.rb">Logs</a></h1>
+				<table cellspacing="0">
+					<th>
+						<td>User Name</td>
+						<td>User ID</td>
+						<td>Password</td>
+						<td>Note</td>
+						<td>Operation</td>
+					</th>
+				<% users.each_with_index do |u, i| %>
+					<tr class="parity<%= (i%2).to_s %>">
+						<td></td>
+						<td><span id="user_name"><%= u['name'] %></span></td>
+						<td><span id="user_id"><%= u['user_id'] %></span></td>
+						<td><span id="password"><%= u['pass'] %></span></td>
+						<td><span id="note"><%= u['note'] %></span></td>
+						<td><a href="/user/delete/<%= u['user_id'] %>">delete</a></td>
+					</tr>
+				<% end %>
+				</table>
+				<p><a href="/user/new">new</a></p>
+			</div>
+		</div>
 
-<table cellspacing="0">
-<th>
-	<td>User Name</td>
-	<td>User ID</td>
-	<td>Password</td>
-	<td>Note</td>
-	<td>Operation</td>
-</th>
-	<% users.each_with_index do |u, i| %>
-	<tr class="parity<%= (i%2).to_s %>">
-	<td></td>
-		<td><span id="user_name"><%= u['name'] %></span></td>
-		<td><span id="user_id"><%= u['user_id'] %></span></td>
-		<td><span id="password"><%= u['pass'] %></span></td>
-		<td><span id="note"><%= u['note'] %></span></td>
-		<td><a href="deleteuser.rb?<%= u['user_id'] %>">delete</a></td>
-	</tr>
-	<% end %>
-</table>
-</div>
-</div>
-
-<div id="container">
-<div id="content_container">
-	<div id="content">
-	<h1>New User</h1>
-	<form method="post" action="adduser.rb" class="user_form">
-	<label for="user_name">Name</label>
-	<input type="text" name="name" class="text_field big">
-	<label for="user_id">User ID</label>
-	<input type="text" name="id" class="text_field big">
-	<label for="user_pass">Password</label>
-	<input type="text" name="pass" class="text_field big">
-	<label for="user_note">Note</label>
-	<input type="text" name="note" class="text_field big">
-	<div style="margin-top:30px;"><input type="submit" value="Create" class="big_button" style="margin-right:15px;"></div>
-	</form>
-	<a href="logout.rb">logout.</a>
+		<div id="footer">
+			<strong><%= constants[:footer_note] %></strong>
+			<a href="<%= constants[:footer_url] %>">Home</a>
+			<a href="/help.html">Help</a>
+		</div>
 	</div>
-</div>
-</div>
-
-<div id="footer">
-	<strong>Nexis Koyo Corp.</strong>
-	<a href="http://www.do-koyo.co.jp/">Home</a>
-	<a href="help.html">Help</a>
-</div>
-
 </body>
 </html>

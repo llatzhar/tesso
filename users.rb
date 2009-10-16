@@ -1,4 +1,5 @@
 require 'yaml_fix'
+require 'nkf'
 
 class Users
    
@@ -44,5 +45,25 @@ class Users
          file.write @users.to_yaml
          file.flock(File::LOCK_UN)
       end
+   end
+   
+   def add(params)
+      u = {}
+      u['user_id'] = params['id']
+      u['name'] = NKF.nkf('-Ww --cp932', params['name'])
+      u['pass'] = params['pass']
+      u['note'] = NKF.nkf('-Ww --cp932', params['note'])
+      u['role'] = :user
+      u['files'] = []
+
+      @users << u
+      
+      flush
+   end
+   
+   def delete(name)
+      @users.delete(find_by(name))
+      
+      flush
    end
 end
