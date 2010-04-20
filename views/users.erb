@@ -3,7 +3,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link rel="stylesheet" type="text/css" href="tesso.css"/>
-	<title>User List | tesso</title>
+	<title>Administration | tesso</title>
 </head>
 <body>
 	<div id="container">
@@ -25,11 +25,11 @@
 						<td><span id="user_id"><%= u['user_id'] %></span></td>
 						<td><span id="password"><%= u['pass'] %></span></td>
 						<td><span id="note"><%= u['note'] %></span></td>
-						<td><a href="/user/delete/<%= u['user_id'] %>">delete</a></td>
+						<td><a href="/user/<%= u['user_id'] %>/edit">edit</a> | <a href="/user/<%= u['user_id'] %>/delete">delete</a></td>
 					</tr>
 				<% end %>
 				</table>
-				<p><a href="/user/new">new</a></p>
+				<p><a href="/user/new">new</a> <a href="/logout">logout</a></p>
 			</div>
 		</div>
 

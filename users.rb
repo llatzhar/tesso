@@ -24,19 +24,33 @@ class Users
       return nil
    end
 
-   def find_by(name)
+   def find_by(uid)
       @users.each do |u|
-         if u["user_id"] == name
+         if u["user_id"] == uid
             return u
          end
       end
       return nil
    end
    
+   def admin?(uid)
+      u = find_by(uid)
+      u["role"] == "admin"
+   end
+   
+   def user?
+      u = find_by(uid)
+      u["role"] == "user"
+   end
+   
+   def room?
+      raise "not implemented"
+   end
+   
    def lock
       f = File.open('users.yml', 'r')
       f.flock(File::LOCK_SH)
-      # unlockはプロセス死亡時の自動開放に任せる。(mod_rubyにもっていく場合に注意)
+      # unlockはプロセス死亡時の自動開放に任せる...でいいの？
    end
    
    def flush
@@ -55,9 +69,22 @@ class Users
       u['note'] = NKF.nkf('-Ww --cp932', params['note'])
       u['role'] = :user
       u['files'] = []
-
       @users << u
       
+      flush
+   end
+   
+   #TODO edit user_id(with check).
+   def edit(params)
+      u = find_by(params['id'])
+      if u == nil
+         return
+      end
+      
+      u['name'] = NKF.nkf('-Ww --cp932', params['name'])
+      u['pass'] = params['pass']
+      u['note'] = NKF.nkf('-Ww --cp932', params['note'])
+
       flush
    end
    

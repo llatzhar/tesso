@@ -1,33 +1,52 @@
-user
+file uploader.
 
 [Webrick]
 
 $ rackup config.ru
 -> http://localhost:9292/hi
 
-TODO
+users' role
+	:admin
+	:user
+	:room
 
-/login
-/logout
+urls
 
-[for administration]
-/users
+o /hi
+	get: test
 
-/user/1
-get /user/new
-post /user/new
-/user/edit/1
-/user/delete/1
+o /login
+o	get: view login form
+o	post: authorize users and rooms
 
-[for room admin]
-/rooms
+o /logout
+o	get: logout
 
-/room/1
-/room/new
-/room/edit/1
+[for admin]
+o /users
+o	get: userlist
+
+o /user/new
+o	get: view user create form
+o	post: create user
+
+o /user/[userid]/edit
+o	get: view user edit form
+o	post: edit user
+
+o /user/[userid]/delete
+o	get: delete user
 
 [for user]
-/files/1
+/rooms
+
+/[roomid]
+/room/new
+/[roomid]/edit
+/[roomid]/delete
+
+[for room]
+/files
 
 /file/1
 /file/new
