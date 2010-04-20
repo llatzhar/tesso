@@ -13,7 +13,7 @@ require 'users'
 enable :sessions
 
 get '/' do
-   redirect '/login'
+   redirect './login'
 end
 
 get '/hi' do
@@ -28,14 +28,14 @@ end
 get '/logout' do
    session.clear
    #cookie ||= 0
-   redirect '/login'
+   redirect './login'
 end
 
 post '/auth' do
    users = Users.new
    if users.authenticate(params['user'], params['pass'])
       session[:user] = params['user']
-      redirect '/users'
+      redirect './users'
    else
       @message = 'login faield.'
       erb :login, :locals => { :constants => CONFIG }
@@ -65,7 +65,7 @@ post '/user/new' do
    users = Users.new
    users.add(params)
    
-   redirect '/users'
+   redirect './users'
 end
 
 get '/user/edit/:name' do
@@ -78,7 +78,7 @@ post '/user/edit/:name' do
    users = Users.new
    users.add(params)
    
-   redirect '/users'
+   redirect './users'
 end
 
 get '/user/delete/:name' do |n|
@@ -86,5 +86,5 @@ get '/user/delete/:name' do |n|
    users = Users.new
    users.delete(n)
    
-   redirect '/users'
+   redirect './users'
 end
