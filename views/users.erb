@@ -22,10 +22,10 @@
 					<tr class="parity<%= (i%2).to_s %>">
 						<td></td>
 						<td><span id="user_name"><%= u['name'] %></span></td>
-						<td><span id="user_id"><%= u['user_id'] %></span></td>
+						<td><span id="user_id"><%= u['id'] %></span></td>
 						<td><span id="password"><%= u['pass'] %></span></td>
 						<td><span id="note"><%= u['note'] %></span></td>
-						<td><a href="/user/<%= u['user_id'] %>/edit">edit</a> | <a href="/user/<%= u['user_id'] %>/delete">delete</a></td>
+						<td><a href="/user/<%= u['id'] %>/edit">edit</a> | <a href="/user/<%= u['id'] %>/delete">delete</a></td>
 					</tr>
 				<% end %>
 				</table>

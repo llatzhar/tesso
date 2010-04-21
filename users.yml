@@ -1,0 +1,11 @@
+--- 
+- name: adminuser
+  role: admin
+  id: admino
+  note: default admin user
+  pass: admino
+- name: user01
+  role: user
+  id: u1
+  note: normal user
+  pass: u1

@@ -7,13 +7,17 @@ $ rackup config.ru
 
 users' role
 	:admin
+		add/edit/delete users.
 	:user
+		add/edit/delete rooms.
+		add/edit/delete files in all rooms.
 	:room
+		add/edit/delete files.
 
-urls
+= urls
 
 o /hi
-	get: test
+o	get: test
 
 o /login
 o	get: view login form
@@ -22,7 +26,8 @@ o	post: authorize users and rooms
 o /logout
 o	get: logout
 
-[for admin]
+== for admin
+
 o /users
 o	get: userlist
 
@@ -37,17 +42,37 @@ o	post: edit user
 o /user/[userid]/delete
 o	get: delete user
 
-[for user]
-/rooms
+== for user
 
-/[roomid]
-/room/new
-/[roomid]/edit
-/[roomid]/delete
+o /rooms
+o	get: list of rooms
 
-[for room]
-/files
+o /room/new
+o	get:
+o	post:
 
-/file/1
-/file/new
-/file/edit/1
+o /[roomid]/edit
+o	get:
+o	post:
+
+o /[roomid]/delete
+o	get:
+
+
+== for room
+
+o /[roomid]
+o	get: file in room list
+
+/[roomid]/new
+	post: upload file.
+
+/[roomid]/1
+	get: download file.
+
+/[roomid]/1/edit
+	get: form
+	post: edit
+
+/[roomid]/1/delete
+	post: delete

@@ -1,72 +1,69 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja-JP" lang="ja-JP">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset="utf-8">
-	<link rel="stylesheet" type="text/css" href="tesso.css"/>
-	<title><%= user_name() %>'s files | tesso</title>
-	<script type="text/javascript">
-	<!--
-	function delconfirm(fid){
-		if (confirm("Delete this file?")){
-			location.href="delete.rb?" + fid;
-		}
-	}
-	// -->
-	</script>
-</head>
-<body>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <link rel="stylesheet" type="text/css" href="tesso.css"/>
+        <title><%= room["name"] %>'s files | tesso</title>
+        <script type="text/javascript">
+            function delconfirm(fid){
+            if (confirm("Delete this file?")){
+            location.href="delete.rb?" + fid;
+            }
+            }
+        </script>
+    </head>
+    <body>
+        <div id="container">
+            <div id="content_container">
+                <div id="content">
 
-<div id="container">
-<div id="content_container">
-<div id="content">
+                    <div class="page_header">
+                        <span style="float: right;"><h1><%= room["name"] %></h1></span>
+                        <h1><%= room["files"].size.to_s %> Files</h1>
+                    </div>
 
-<div class="page_header">
-<span style="float: right;"><h1><%= user_name() %></h1></span>
-<h1>Files</h1>
-</div>
+                    <table cellspacing="0">
+                        <tr>
+                            <td>File Name</td>
+                            <td>File Size</td>
+                            <td>Note</td>
+                            <td>Uploaded</td>
+                            <td>Operation</td>
+                        </tr>
 
-<table cellspacing="0">
-<tr>
-	<td>File Name</td>
-	<td>File Size</td>
-	<td>Note</td>
-	<td>Uploaded</td>
-	<td>Operation</td>
-</tr>
+                        <% if room["files"] != nil %>
+                        <% room["files"].each_with_index do |f, i| %>
+                        <tr class="parity<%= (i%2).to_s %>">
+                            <td class="file_name"><%= f['name'] %></td>
+                            <td class="file_size"><%= f['size'] %></td>
+                            <td class="file_note"><%= f['note'] %></td>
+                            <td class="file_date"><%= f['date'].strftime("%Y-%m-%d %H:%M") %></td>
+                            <td class="operation"><a href="download.rb?<%= f['id'] %>">download</a> | <a href="javascript:delconfirm(<%= f['id']%>)">delete</a></td>
+                        </tr>
+                        <% end %>
+                        <% end %>
+                    </table>
 
-<% if $user["files"] != nil %>
-<% $user["files"].each_with_index do |f, i| %>
-	<tr class="parity<%= (i%2).to_s %>">
-		<td class="file_name"><%=h f['name'] %></td>
-		<td class="file_size"><%=h f['size'] %></td>
-		<td class="file_note"><%=h f['note'] %></td>
-		<td class="file_date"><%=h f['date'].strftime("%Y-%m-%d %H:%M") %></td>
-		<td class="operation"><a href="download.rb?<%=u f['id'] %>">download</a> | <a href="javascript:delconfirm(<%=u f['id']%>)">delete</a></td>
-	</tr>
-<% end %>
-<% end %>
-</table>
+                    <h2>Upload</h2>
+                    <form method="post" action="upload.rb" enctype="multipart/form-data" class="upload_form">
+                        <label for="upfile">file</label>
+                        <input type="file" name="upfile" class="text_field big"/>
+                        <label for="note">note</label>
+                        <input type="text" name="note" class="text_field big"/>
+                        <div style="margin-top:30px;"><input type="submit" value="Upload" class="big_button" style="margin-right:15px;"></div>
+                    </form>
 
-<h2>Upload</h2>
-<form method="post" action="upload.rb" enctype="multipart/form-data" class="upload_form">
-	<label for="upfile">file</label>
-	<input type="file" name="upfile" class="text_field big"/>
-	<label for="note">note</label>
-	<input type="text" name="note" class="text_field big"/>
-	<div style="margin-top:30px;"><input type="submit" value="Upload" class="big_button" style="margin-right:15px;"></div>
-</form>
+                    <p><a href="./rooms">back to rooms.</a> <a href="./logout">logout.</a></p>
 
-<p><a href="logout.rb">logout.</a></p>
-
-</div>
-</div>
-</div>
+                </div>
+            </div>
+        </div>
 
 
-<div id="footer">
-	<strong><%= constants[:footer_note] %></strong>
-	<a href="<%= constants[:footer_url] %>">Home</a>
-	<a href="help.html">Help</a>
-</div>
-</body>
+        <div id="footer">
+            <strong><%= constants[:footer_note] %></strong>
+            <a href="<%= constants[:footer_url] %>">Home</a>
+            <a href="help.html">Help</a>
+        </div>
+    </body>
 </html>

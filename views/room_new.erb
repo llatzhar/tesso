@@ -3,27 +3,27 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link rel="stylesheet" type="text/css" href="/tesso.css"/>
-	<title>Edit user | tesso</title>
+	<title>New room | tesso</title>
 </head>
 <body>
 	<div id="container">
 		<div id="content_container">
 			<div id="content">
-				<h1>Edit User</h1>
-				<form method="post" action="/user/<%= user['id'] %>/edit" class="user_form">
-					<label for="user_name">Name</label>
-					<input type="text" name="name" class="text_field big" value="<%= user['name'] %>">
-					<label for="user_id">User ID</label>
-					<input type="text" name="id" class="text_field big" value="<%= user['id'] %>">
-					<label for="user_pass">Password</label>
-					<input type="text" name="pass" class="text_field big" value="<%= user['pass'] %>">
-					<label for="user_note">Note</label>
-					<input type="text" name="note" class="text_field big" value="<%= user['note'] %>">
+				<h1>New Room</h1>
+				<form method="post" action="/room/new" class="user_form">
+					<label for="room_name">Name</label>
+					<input type="text" name="name" class="text_field big">
+					<label for="room_id">Room ID</label>
+					<input type="text" name="id" class="text_field big">
+					<label for="room_pass">Password</label>
+					<input type="text" name="pass" class="text_field big">
+					<label for="room_note">Note</label>
+					<input type="text" name="note" class="text_field big">
 					<div style="margin-top:30px;">
 						<input type="submit" value="Create" class="big_button" style="margin-right:15px;">
 					</div>
 				</form>
-				<a href="/users">back</a> <a href="/logout">logout.</a>
+				<a href="/rooms">back</a> <a href="/logout">logout.</a>
 			</div>
 		</div>
 

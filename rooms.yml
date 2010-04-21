@@ -1,0 +1,12 @@
+--- 
+- name: roomA
+  files: 
+  - name: Opera-tan-9.svg
+    size: 1289863
+    date: 2008-09-20 14:36:40.769482 +09:00
+    id: "20080920143640"
+    type: image/svg+xml
+    note: ghost file for test.
+  id: room1
+  note: testudss
+  pass: room1
