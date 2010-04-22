@@ -66,7 +66,7 @@ class Users
       u['name'] = NKF.nkf('-Ww --cp932', params['name'])
       u['pass'] = params['pass']
       u['note'] = NKF.nkf('-Ww --cp932', params['note'])
-      u['role'] = :user
+      u['role'] = "user"
       @objects << u
       
       flush
