@@ -63,9 +63,7 @@ o	get:
 
 o /[roomid]
 o	get: file in room list
-
-/[roomid]/new
-	post: upload file.
+o	post: upload file.
 
 /[roomid]/1
 	get: download file.

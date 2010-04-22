@@ -1,20 +1,24 @@
 #!/usr/bin/ruby
 
-$:.unshift('lib')
-
 $CONFIG = {
+   :files_dir => 'd:\\',
+   :temp_dir => '/temp',
    :footer_note => 'some note',
    :footer_url => 'http://google.com/',
    :users => 'users.yml',
    :rooms => 'rooms.yml'
 }
 
+$:.unshift('lib')
+
+if $CONFIG.key?(:temp_dir)
+   ENV['TMPDIR'] = $CONFIG[:temp_dir]
+end
+
 require 'sinatra'
 require 'users'
 
 enable :sessions
-
-$users = nil
 
 helpers do
    def role?(user, rolestr)
@@ -158,9 +162,50 @@ post '/room/new' do
    redirect '../rooms'
 end
 
+get '/:roomid/:fileid' do |roomid, fileid|
+   redirect '../login' if !user?(session) and !room?(session)
+   
+   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
+   room['files'].each do |f|
+      if f['id'] == fileid
+         attachment "#{$CONFIG[:files_dir]}#{f['name']}"
+         send_file "#{$CONFIG[:files_dir]}#{fileid}"
+      end
+   end
+end
+
 get '/:roomid' do |roomid|
    redirect './login' if !user?(session) and !room?(session)
    room = Rooms.instance($CONFIG[:rooms]).find(roomid)
+   erb :files, :locals => {
+      :room => room,
+      :constants => $CONFIG
+   }
+end
+
+post '/:roomid' do |roomid|
+   redirect './login' if !user?(session) and !room?(session)
+   
+   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
+   if params[:upfile]
+      p params
+      
+      file_id =  Time.now.strftime("%Y%m%d%H%M%S") # ‰¼
+      
+      file = {}
+      file['name'] = params[:upfile][:filename]
+      file['size'] = 6 #TODO
+      file['date'] = Time.now
+      file['id'] = file_id
+      file['type'] = params[:upfile][:type]
+      file['note'] = params[:note]
+      room['files'] << file
+      Rooms.instance($CONFIG[:rooms]).flush
+      
+      # at windows, cannot mv.
+      FileUtils.cp(params[:upfile][:tempfile].path, "#{$CONFIG[:files_dir]}#{file_id}")
+   end
+   
    erb :files, :locals => {
       :room => room,
       :constants => $CONFIG

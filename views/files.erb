@@ -38,14 +38,14 @@
                             <td class="file_size"><%= f['size'] %></td>
                             <td class="file_note"><%= f['note'] %></td>
                             <td class="file_date"><%= f['date'].strftime("%Y-%m-%d %H:%M") %></td>
-                            <td class="operation"><a href="download.rb?<%= f['id'] %>">download</a> | <a href="javascript:delconfirm(<%= f['id']%>)">delete</a></td>
+                            <td class="operation"><a href="./<%= room['id'] %>/<%= f['id'] %>">download</a> | <a href="./<%= room['id'] %>/<%= f['id'] %>/edit">edit</a> | <a href="./<%= room['id'] %>/<%= f['id'] %>/delete">delete</a></td>
                         </tr>
                         <% end %>
                         <% end %>
                     </table>
 
                     <h2>Upload</h2>
-                    <form method="post" action="upload.rb" enctype="multipart/form-data" class="upload_form">
+                    <form method="post" action="./<%= room['id'] %>" enctype="multipart/form-data" class="upload_form">
                         <label for="upfile">file</label>
                         <input type="file" name="upfile" class="text_field big"/>
                         <label for="note">note</label>
