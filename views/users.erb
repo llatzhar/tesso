@@ -25,11 +25,11 @@
 						<td><span id="user_id"><%= u['id'] %></span></td>
 						<td><span id="password"><%= u['pass'] %></span></td>
 						<td><span id="note"><%= u['note'] %></span></td>
-						<td><a href="/user/<%= u['id'] %>/edit">edit</a> | <a href="/user/<%= u['id'] %>/delete">delete</a></td>
+						<td><a href="./user/<%= u['id'] %>/edit">edit</a> | <a href="./user/<%= u['id'] %>/delete">delete</a></td>
 					</tr>
 				<% end %>
 				</table>
-				<p><a href="/user/new">new</a> <a href="/logout">logout</a></p>
+				<p><a href="./user/new">new</a> <a href="./logout">logout</a></p>
 			</div>
 		</div>
 
