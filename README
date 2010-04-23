@@ -65,12 +65,12 @@ o /[roomid]
 o	get: file in room list
 o	post: upload file.
 
-/[roomid]/1
-	get: download file.
+o /[roomid]/1
+o	get: download file.
 
 /[roomid]/1/edit
 	get: form
 	post: edit
 
 /[roomid]/1/delete
-	post: delete
+	get: delete

@@ -19,7 +19,7 @@ module YamlStore
    def find(id)
       #p @objects
       @objects.each do |o|
-         if o["id"] == id
+         if o['id'] == id
             return o
          end
       end
@@ -134,6 +134,59 @@ class Rooms
    
    def delete(name)
       @objects.delete(find(name))
+      flush
+   end
+end
+
+class Files
+   include YamlStore
+   
+   def initialize(filename)
+      super(filename)
+   end
+   
+   def Files.instance(filename)
+      if @instance == nil
+         @instance = new(filename)
+      end
+      @instance
+   end
+   
+   def next_id
+      @objects.last['id'].succ
+   end
+   
+   def add(params)
+      file = {}
+      id = next_id
+      file['id'] = id
+      file['name'] = NKF.nkf('-Ww --cp932', params[:name])
+      file['type'] = params[:type]
+      file['note'] = NKF.nkf('-Ww --cp932', params[:note])
+      file['size'] = params[:size]
+      file['date'] = Time.now
+      @objects << file
+      
+      flush
+      
+      id
+   end
+   
+   def edit(params)
+      u = find(params['id'])
+      if u == nil
+         return
+      end
+      
+      u['name'] = NKF.nkf('-Ww --cp932', params['name'])
+      u['pass'] = params['pass']
+      u['note'] = NKF.nkf('-Ww --cp932', params['note'])
+
+      flush
+   end
+   
+   def delete(id)
+      @objects.delete(find(id))
       flush
    end
 end

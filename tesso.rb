@@ -6,7 +6,8 @@ $CONFIG = {
    :footer_note => 'some note',
    :footer_url => 'http://google.com/',
    :users => 'users.yml',
-   :rooms => 'rooms.yml'
+   :rooms => 'rooms.yml',
+   :files => 'files.yml'
 }
 
 $:.unshift('lib')
@@ -162,56 +163,27 @@ post '/room/new' do
    redirect '../rooms'
 end
 
-get '/:roomid/:fileid' do |roomid, fileid|
-   redirect '../login' if !user?(session) and !room?(session)
+get '/:roomid/:fileid/delete' do |roomid, fileid|
+   # これ、認証の体をなしてないroom owner?が必要
+   redirect '../../login' if !user?(session) and !room?(session)
    
-   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
-   room['files'].each do |f|
-      if f['id'] == fileid
-         content_type 'application/octet-stream', :charset => 'utf-8'
-         attachment "#{$CONFIG[:files_dir]}#{f['name']}"
-         send_file "#{$CONFIG[:files_dir]}#{fileid}"
-         return
-      end
-   end
-end
+   id = fileid.to_i
+   
+   # file
+   filename = "#{$CONFIG[:files_dir]}#{id}"
+   File.delete(filename) if File.exist?(filename)
 
-get '/:roomid' do |roomid|
-   redirect './login' if !user?(session) and !room?(session)
-   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
-   erb :files, :locals => {
-      :room => room,
-      :constants => $CONFIG
-   }
-end
-
-post '/:roomid' do |roomid|
-   redirect './login' if !user?(session) and !room?(session)
+   # file.yml
+   Files.instance($CONFIG[:files]).delete(id)
    
-   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
-   if params[:upfile]
-      p params
-      
-      file_id =  Time.now.strftime("%Y%m%d%H%M%S") # 仮
-      
-      file = {}
-      file['name'] = params[:upfile][:filename]
-      file['size'] = 6 #TODO
-      file['date'] = Time.now
-      file['id'] = file_id
-      file['type'] = params[:upfile][:type]
-      file['note'] = params[:note]
-      room['files'] << file
-      Rooms.instance($CONFIG[:rooms]).flush
-      
-      # at windows, cannot mv.
-      FileUtils.cp(params[:upfile][:tempfile].path, "#{$CONFIG[:files_dir]}#{file_id}")
-   end
+   # room.yml
+   rooms = Rooms.instance($CONFIG[:rooms])
+   room = rooms.find(roomid)
+   room["files"].delete(id)
+   rooms.flush
    
-   erb :files, :locals => {
-      :room => room,
-      :constants => $CONFIG
-   }
+   # copied...
+   redirect "../../#{roomid}"
 end
 
 get '/:roomid/edit' do |roomid|
@@ -225,12 +197,92 @@ end
 
 post '/:roomid/edit' do |roomid|
    redirect '../login' if !user?(session)
+   
    Rooms.instance($CONFIG[:rooms]).edit(params)
    redirect '../rooms'
 end
 
 get '/:roomid/delete' do |roomid|
    redirect '../login' if !user?(session)
-   Rooms.instance($CONFIG[:rooms]).delete(roomid)
+   
+   rooms = Rooms.instance($CONFIG[:rooms])
+   files = Files.instance($CONFIG[:files])
+   rooms.find(roomid)['files'].each do |f|
+      filename = "#{$CONFIG[:files_dir]}#{id}"
+      File.delete(filename) if File.exist?(filename)
+      files.delete(f)
+   end
+   rooms.delete(roomid)
    redirect '../rooms'
 end
+
+get '/:roomid/:fileid' do |roomid, fileid|
+   redirect '../login' if !user?(session) and !room?(session)
+   
+   file = Files.instance($CONFIG[:files]).find(fileid.to_i)
+   if file
+      content_type 'application/octet-stream', :charset => 'utf-8'
+      attachment "#{$CONFIG[:files_dir]}#{file['name']}"
+      send_file "#{$CONFIG[:files_dir]}#{file['id']}"
+   else
+      "no file id=#{fileid}"
+   end
+end
+
+get '/:roomid' do |roomid|
+   redirect './login' if !user?(session) and !room?(session)
+   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
+   files = Files.instance($CONFIG[:files])
+   
+   files_in_room = []
+   room['files'].each do |i|
+      files_in_room << files.find(i)
+   end
+   
+   erb :files, :locals => {
+      :room => room,
+      :files => files_in_room,
+      :constants => $CONFIG
+   }
+end
+
+post '/:roomid' do |roomid|
+   redirect './login' if !user?(session) and !room?(session)
+   
+   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
+   if params[:upfile]
+      p params
+      
+      # fixme: always size = 0
+      size = File.stat(params[:upfile][:tempfile].path).size
+      p File.stat(params[:upfile][:tempfile].path).ctime
+      files = Files.instance($CONFIG[:files])
+      file_id = files.add({
+         :name => params[:upfile][:filename],
+         :type => params[:upfile][:type],
+         :note => params[:note],
+         :size => size
+         })
+      
+      room['files'] << file_id
+      Rooms.instance($CONFIG[:rooms]).flush
+      
+      # at windows, cannot mv.
+      FileUtils.cp(params[:upfile][:tempfile].path, "#{$CONFIG[:files_dir]}#{file_id}")
+   end
+   
+   files = Files.instance($CONFIG[:files])
+   
+   # code copied
+   files_in_room = []
+   room['files'].each do |i|
+      files_in_room << files.find(i)
+   end
+   
+   erb :files, :locals => {
+      :room => room,
+      :files => files_in_room,
+      :constants => $CONFIG
+   }
+end
+

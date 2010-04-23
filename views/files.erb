@@ -31,8 +31,7 @@
                             <td>Operation</td>
                         </tr>
 
-                        <% if room["files"] != nil %>
-                        <% room["files"].each_with_index do |f, i| %>
+                        <% files.each_with_index do |f, i| %>
                         <tr class="parity<%= (i%2).to_s %>">
                             <td class="file_name"><%= f['name'] %></td>
                             <td class="file_size"><%= f['size'] %></td>
@@ -40,7 +39,6 @@
                             <td class="file_date"><%= f['date'].strftime("%Y-%m-%d %H:%M") %></td>
                             <td class="operation"><a href="./<%= room['id'] %>/<%= f['id'] %>">download</a> | <a href="./<%= room['id'] %>/<%= f['id'] %>/edit">edit</a> | <a href="./<%= room['id'] %>/<%= f['id'] %>/delete">delete</a></td>
                         </tr>
-                        <% end %>
                         <% end %>
                     </table>
 
