@@ -168,8 +168,10 @@ get '/:roomid/:fileid' do |roomid, fileid|
    room = Rooms.instance($CONFIG[:rooms]).find(roomid)
    room['files'].each do |f|
       if f['id'] == fileid
+         content_type 'application/octet-stream', :charset => 'utf-8'
          attachment "#{$CONFIG[:files_dir]}#{f['name']}"
          send_file "#{$CONFIG[:files_dir]}#{fileid}"
+         return
       end
    end
 end
