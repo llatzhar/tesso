@@ -4,13 +4,122 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <link rel="stylesheet" type="text/css" href="tesso.css"/>
         <title><%= room["name"] %>'s files | tesso</title>
+
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.2/mootools.js"></script>
+        <script type="text/javascript" src="Fx.ProgressBar.js"></script>
+        <script type="text/javascript" src="Swiff.Uploader.js"></script>
+        <script type="text/javascript" src="FancyUpload3.Attach.js"></script>
         <script type="text/javascript">
-            function delconfirm(fid){
-            if (confirm("Delete this file?")){
-            location.href="delete.rb?" + fid;
-            }
-            }
+            //<![CDATA[
+                window.addEvent('domready', function() {
+
+                var up = new FancyUpload3.Attach('demo-list', '#demo-attach, #demo-attach-2', {
+                path: 'Swiff.Uploader.swf',
+                url: './<%= room['id'] %>/fancy',
+                fileSizeMax: 2 * 1024 * 1024 * 1024,
+                
+                verbose: true,
+                
+		onSelectFail: function(files) {
+			files.each(function(file) {
+				new Element('li', {
+					'class': 'file-invalid',
+					events: {
+						click: function() {
+							this.destroy();
+						}
+					}
+				}).adopt(
+					new Element('span', {html: file.validationErrorMessage || file.validationError})
+				).inject(this.list, 'bottom');
+			}, this);	
+		},
+		
+		onFileSuccess: function(file) {
+			new Element('input', {type: 'checkbox', 'checked': true}).inject(file.ui.element, 'top');
+			file.ui.element.highlight('#e6efc2');
+		},
+		
+		onFileError: function(file) {
+			file.ui.cancel.set('html', 'Retry').removeEvents().addEvent('click', function() {
+				file.requeue();
+				return false;
+			});
+			
+			new Element('span', {
+				html: file.errorMessage,
+				'class': 'file-error'
+			}).inject(file.ui.cancel, 'after');
+		},
+		
+		onFileRequeue: function(file) {
+			file.ui.element.getElement('.file-error').destroy();
+			
+			file.ui.cancel.set('html', 'Cancel').removeEvents().addEvent('click', function() {
+				file.remove();
+				return false;
+			});
+			
+			this.start();
+		}
+		
+	});
+
+});
+
+		//]]>
         </script>
+
+        	<style type="text/css">
+		a.hover {
+	color: red;
+}
+
+#demo-list {
+	padding: 0;
+	list-style: none;
+	margin: 0;
+}
+
+#demo-list .file-invalid {
+	cursor: pointer;
+	color: #514721;
+	padding-left: 48px;
+	line-height: 24px;
+	background: url(assets/error.png) no-repeat 24px 5px;
+	margin-bottom: 1px;
+}
+#demo-list .file-invalid span {
+	background-color: #fff6bf;
+	padding: 1px;
+}
+
+#demo-list .file {
+	line-height: 2em;
+	padding-left: 22px;
+	background: url(assets/attach.png) no-repeat 1px 50%;
+}
+
+#demo-list .file span,
+#demo-list .file a {
+	padding: 0 4px;
+}
+
+#demo-list .file .file-size {
+	color: #666;
+}
+
+#demo-list .file .file-error {
+	color: #8a1f11;
+}
+
+#demo-list .file .file-progress {
+	width: 125px;
+	height: 12px;
+	vertical-align: middle;
+	background-image: url(assets/progress-bar/progress.gif);
+}
+	</style>
     </head>
     <body>
         <div id="container">
@@ -43,20 +152,19 @@
                     </table>
 
                     <h2>Upload</h2>
-                    <form method="post" action="./<%= room['id'] %>" enctype="multipart/form-data" class="upload_form">
-                        <label for="upfile">file</label>
-                        <input type="file" name="upfile" class="text_field big"/>
-                        <label for="note">note</label>
-                        <input type="text" name="note" class="text_field big"/>
-                        <div style="margin-top:30px;"><input type="submit" value="Upload" class="big_button" style="margin-right:15px;"></div>
-                    </form>
+                    <div class="container">
+                        <div>
+                            <a href="#" id="demo-attach">Attach a file</a>
+                            <ul id="demo-list"></ul>
+                            <a href="#" id="demo-attach-2" style="display: none;">Attach another file</a>
+                        </div>
+                    </div>
 
                     <p><a href="./rooms">back to rooms.</a> <a href="./logout">logout.</a></p>
 
                 </div>
             </div>
         </div>
-
 
         <div id="footer">
             <strong><%= constants[:footer_note] %></strong>

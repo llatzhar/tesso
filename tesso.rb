@@ -18,6 +18,7 @@ end
 
 require 'sinatra'
 require 'users'
+require 'json'
 
 enable :sessions
 
@@ -214,6 +215,37 @@ get '/:roomid/delete' do |roomid|
    end
    rooms.delete(roomid)
    redirect '../rooms'
+end
+
+post '/:roomid/fancy' do |roomid|
+   p params
+   r = {'status' => '0', 'error' => 'something error message'}
+   
+   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
+   if params["Filedata"]
+      puts "filedata = #{params["Filedata"].inspect}"
+      
+      # fixme: always size = 0
+      size = File.stat(params["Filedata"][:tempfile].path).size
+      p File.stat(params["Filedata"][:tempfile].path).ctime
+      files = Files.instance($CONFIG[:files])
+      file_id = files.add({
+         :name => params["Filedata"][:filename],
+         :type => params["Filedata"][:type],
+         :note => "", #params[:note],
+         :size => size
+         })
+      
+      room['files'] << file_id
+      Rooms.instance($CONFIG[:rooms]).flush
+      
+      # at windows, cannot mv.
+      FileUtils.cp(params["Filedata"][:tempfile].path, "#{$CONFIG[:files_dir]}#{file_id}")
+   end
+   
+   content_type :json
+   puts JSON.unparse(r)
+   JSON.unparse(r)
 end
 
 get '/:roomid/:fileid' do |roomid, fileid|
