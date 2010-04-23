@@ -153,6 +153,7 @@ class Files
    end
    
    def next_id
+      return 1 if @objects.size < 1
       @objects.last['id'].succ
    end
    
