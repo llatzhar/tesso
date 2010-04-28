@@ -159,8 +159,7 @@ class Files
    
    def add(params)
       file = {}
-      id = next_id
-      file['id'] = id
+      file['id'] = next_id
       file['name'] = NKF.nkf('-Ww --cp932', params[:name])
       file['type'] = params[:type]
       file['note'] = NKF.nkf('-Ww --cp932', params[:note])
@@ -169,8 +168,7 @@ class Files
       @objects << file
       
       flush
-      
-      id
+      file
    end
    
    def edit(params)

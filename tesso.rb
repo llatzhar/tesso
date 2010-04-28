@@ -18,6 +18,7 @@ end
 
 require 'sinatra'
 require 'users'
+require 'json'
 
 enable :sessions
 
@@ -214,6 +215,82 @@ get '/:roomid/delete' do |roomid|
    end
    rooms.delete(roomid)
    redirect '../rooms'
+end
+
+# fancy
+get '/:roomid/fancy' do |roomid|
+   redirect './login' if !user?(session) and !room?(session, roomid)
+   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
+   files = Files.instance($CONFIG[:files])
+   
+   # ‚¨‚ñ‚È‚¶‚±‚Æ‚È‚ñ‚©‚¢‚µ‚Ä‚é‚Ì
+   files_in_room = []
+   room['files'].each do |i|
+      files_in_room << files.find(i)
+   end
+   
+   erb :fancy, :locals => {
+      :room => room,
+      :files => files_in_room,
+      :constants => $CONFIG
+   }
+end
+
+
+# file list(json output)
+post '/:roomid/fancy.json' do |roomid|
+   #todo api auth
+   #redirect '../login' if !user?(session) and !room?(session, roomid)
+   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
+   files = Files.instance($CONFIG[:files])
+   
+   files_in_room = []
+   room['files'].each do |i|
+      files_in_room << files.find(i)
+   end
+   
+   JSON.unparse(files_in_room)
+end
+
+# todo fancy upload with session-id
+post '/:roomid/fancy' do |roomid|
+   #puts "fancy: roomid=#{roomid}, session=#{session[:user]}"
+   #redirect '../../login' if !user?(session) and !room?(session, roomid)
+   #p params
+   r = {'status' => '0', 'error' => 'something error message'}
+   
+   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
+   if params['Filedata']
+      puts "filedata = #{params['Filedata'].inspect}"
+      
+      # fixme: always size = 0
+      size = File.stat(params['Filedata'][:tempfile].path).size
+      p File.stat(params['Filedata'][:tempfile].path).ctime
+      files = Files.instance($CONFIG[:files])
+      file = files.add({
+         :name => params['Filedata'][:filename],
+         :type => params['Filedata'][:type],
+         :note => "", #params[:note],
+         :size => size
+         })
+      
+      room['files'] << file['id']
+      Rooms.instance($CONFIG[:rooms]).flush
+      
+      # at windows, cannot mv.
+      FileUtils.cp(params['Filedata'][:tempfile].path, "#{$CONFIG[:files_dir]}#{file['id']}")
+      
+      r['name'] = file['name']
+      r['type'] = file['type']
+      r['note'] = file['note']
+      r['size'] = file['size']
+      r['date'] = file['date'].strftime("%Y-%m-%d %H:%M")
+      r['id'] = file['id']
+   end
+   
+   content_type :json
+   puts JSON.unparse(r)
+   JSON.unparse(r)
 end
 
 get '/:roomid/:fileid' do |roomid, fileid|

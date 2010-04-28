@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja-JP" lang="ja-JP">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+        <link rel="stylesheet" type="text/css" href="../tesso.css"/>
+        <title><%= room["name"] %>'s files | tesso</title>
+
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.2/mootools.js"></script>
+        <script type="text/javascript" src="../Fx.ProgressBar.js"></script>
+        <script type="text/javascript" src="../Swiff.Uploader.js"></script>
+        <script type="text/javascript" src="../FancyUpload3.Attach.js"></script>
+        <script type="text/javascript">
+
+var update_file_list = function() {
+        var request = new Request.JSON({
+            url: './fancy.json',
+            onComplete: function(objs) {
+                alert(objs);
+
+                for (var i = 0; i < objs.length; i++) {
+                    if (i % 2) {
+                        tr = new Element('tr', {
+                            'styles': {'background-color': '#ccccdd'}
+                        }).inject($('file-list'));
+                    } else {
+                        tr = new Element('tr', {
+                            'styles': {'background-color': '#f6f6ff'}
+                        }).inject($('file-list'));
+                    }
+                    new Element('td', {'text': objs[i]['name']}).inject(tr);
+                    new Element('td', {'text': objs[i]['size']}).inject(tr);
+                    new Element('td', {'text': objs[i]['note']}).inject(tr);
+                    new Element('td', {'text': objs[i]['date']}).inject(tr);
+                    new Element('td', {'text': 'download | edit | delete'}).inject(tr);
+                }
+
+            }
+        }).send();
+}
+            //<![CDATA[
+            window.addEvent('domready', function() {
+
+                var up = new FancyUpload3.Attach('demo-list', '#demo-attach, #demo-attach-2', {
+                    path: '../Swiff.Uploader.swf',
+                    url: '../<%= room['id'] %>/fancy',
+                    fileSizeMax: 2 * 1024 * 1024 * 1024,
+                    verbose: true,
+
+                    onSelectFail: function(files) {
+                        files.each(function(file) {
+                            new Element('li', {
+                                'class': 'file-invalid',
+                                events: {
+                                    click: function() {
+                                        this.destroy();
+                                    }
+                                }
+                            }).adopt(
+                                new Element('span', {html: file.validationErrorMessage || file.validationError})
+                            ).inject(this.list, 'bottom');
+                        }, this);
+                    },
+
+                    onFileSuccess: function(file, response) {
+                        new Element('input', {type: 'checkbox', 'checked': true}).inject(file.ui.element, 'top');
+                        file.ui.element.highlight('#e6efc2');
+
+                        tr = new Element('tr', {
+                            'styles': {'background-color': '#f6f6ff'}
+                        }).inject($('file-list'));
+
+                        f = JSON.decode(response)
+                        new Element('td', {'text': f['name']}).inject(tr);
+                        new Element('td', {'text': f['size']}).inject(tr);
+                        new Element('td', {'text': f['note']}).inject(tr);
+                        new Element('td', {'text': f['date']}).inject(tr);
+                        td = new Element('td').inject(tr);
+                        new Element('a', {'href': f['id'], 'text': 'download'}).inject(td);
+                        td.appendText(' | ');
+                        new Element('a', {'href': f['id'], 'text': 'edit'}).inject(td);
+                        td.appendText(' | ');
+                        new Element('a', {'href': f['id'], 'text': 'delete'}).inject(td);
+                    },
+
+                    onFileError: function(file) {
+                        file.ui.cancel.set('html', 'Retry').removeEvents().addEvent('click', function() {
+                            file.requeue();
+                            return false;
+                        });
+
+                        new Element('span', {
+                            html: file.errorMessage,
+                            'class': 'file-error'
+                        }).inject(file.ui.cancel, 'after');
+                    },
+
+                    onFileRequeue: function(file) {
+                        file.ui.element.getElement('.file-error').destroy();
+
+                        file.ui.cancel.set('html', 'Cancel').removeEvents().addEvent('click', function() {
+                            file.remove();
+                            return false;
+                        })
+
+                        this.start();
+                    },
+                });
+    });
+
+        //]]>
+        </script>
+    <style type="text/css">
+a.hover {
+	color: red;
+}
+
+#demo-list {
+	padding: 0;
+	list-style: none;
+	margin: 0;
+}
+
+#demo-list .file-invalid {
+	cursor: pointer;
+	color: #514721;
+	padding-left: 48px;
+	line-height: 24px;
+	background: url(../assets/error.png) no-repeat 24px 5px;
+	margin-bottom: 1px;
+}
+#demo-list .file-invalid span {
+	background-color: #fff6bf;
+	padding: 1px;
+}
+
+#demo-list .file {
+	line-height: 2em;
+	padding-left: 22px;
+	background: url(../assets/attach.png) no-repeat 1px 50%;
+}
+
+#demo-list .file span,
+#demo-list .file a {
+	padding: 0 4px;
+}
+
+#demo-list .file .file-size {
+	color: #666;
+}
+
+#demo-list .file .file-error {
+	color: #8a1f11;
+}
+
+#demo-list .file .file-progress {
+	width: 125px;
+	height: 12px;
+	vertical-align: middle;
+	background-image: url(../assets/progress-bar/progress.gif);
+}
+	</style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="content_container">
+                <div id="content">
+
+
+                    <div class="page_header">
+                        <span style="float: right;"><h1><%= room["name"] %></h1></span>
+                        <h1><%= room["files"].size.to_s %> Files</h1>
+                    </div>
+
+                    <table cellspacing="0" id="file-list">
+                        <tr>
+                            <td>File Name</td>
+                            <td>File Size</td>
+                            <td>Note</td>
+                            <td>Uploaded</td>
+                            <td>Operation</td>
+                        </tr>
+
+                        <% files.each_with_index do |f, i| %>
+                        <tr class="parity<%= (i%2).to_s %>">
+                            <td class="file_name"><%= f['name'] %></td>
+                            <td class="file_size"><%= f['size'] %></td>
+                            <td class="file_note"><%= f['note'] %></td>
+                            <td class="file_date"><%= f['date'].strftime("%Y-%m-%d %H:%M") %></td>
+                            <td class="operation"><a href="../<%= room['id'] %>/<%= f['id'] %>">download</a> | <a href="../<%= room['id'] %>/<%= f['id'] %>/edit">edit</a> | <a href="../<%= room['id'] %>/<%= f['id'] %>/delete">delete</a></td>
+                        </tr>
+                        <% end %>
+                    </table>
+
+                    <h2>Upload</h2>
+                    <div class="container">
+                        <div>
+                            <a href="#" id="demo-attach">Attach a file</a>
+                            <ul id="demo-list"></ul>
+                            <a href="#" id="demo-attach-2" style="display: none;">Attach another file</a>
+                        </div>
+                    </div>
+
+                    <p><a href="../rooms">back to rooms.</a> <a href="../logout">logout.</a></p>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="footer">
+            <strong><%= constants[:footer_note] %></strong>
+            <a href="<%= constants[:footer_url] %>">Home</a>
+            <a href="help.html">Help</a>
+        </div>
+    </body>
+</html>
