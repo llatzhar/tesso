@@ -40,10 +40,11 @@ helpers do
       role?(session[:user], "user")
    end
    
-   def room?(session)
+   def room?(session, roomid)
       return false if session[:user] == nil
       rooms = Rooms.instance($CONFIG[:rooms])
-      return rooms.find(session[:user]) != nil
+      room = rooms.find(session[:user])
+      (room != nil) and (room["id"] == roomid)
    end
 end
 
@@ -165,8 +166,7 @@ post '/room/new' do
 end
 
 get '/:roomid/:fileid/delete' do |roomid, fileid|
-   # これ、認証の体をなしてないroom owner?が必要
-   redirect '../../login' if !user?(session) and !room?(session)
+   redirect '../../login' if !user?(session) and !room?(session, roomid)
    
    id = fileid.to_i
    
@@ -186,6 +186,7 @@ get '/:roomid/:fileid/delete' do |roomid, fileid|
    # copied...
    redirect "../../#{roomid}"
 end
+
 
 get '/:roomid/edit' do |roomid|
    redirect '../login' if !user?(session)
@@ -217,30 +218,75 @@ get '/:roomid/delete' do |roomid|
    redirect '../rooms'
 end
 
+# fancy
+get '/:roomid/fancy' do |roomid|
+   redirect './login' if !user?(session) and !room?(session, roomid)
+   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
+   files = Files.instance($CONFIG[:files])
+   
+   # おんなじことなんかいしてるの
+   files_in_room = []
+   room['files'].each do |i|
+      files_in_room << files.find(i)
+   end
+   
+   erb :fancy, :locals => {
+      :room => room,
+      :files => files_in_room,
+      :constants => $CONFIG
+   }
+end
+
+
+# file list(json output)
+post '/:roomid/fancy.json' do |roomid|
+   #todo api auth
+   #redirect '../login' if !user?(session) and !room?(session, roomid)
+   room = Rooms.instance($CONFIG[:rooms]).find(roomid)
+   files = Files.instance($CONFIG[:files])
+   
+   files_in_room = []
+   room['files'].each do |i|
+      files_in_room << files.find(i)
+   end
+   
+   JSON.unparse(files_in_room)
+end
+
+# todo fancy upload with session-id
 post '/:roomid/fancy' do |roomid|
-   p params
+   #puts "fancy: roomid=#{roomid}, session=#{session[:user]}"
+   #redirect '../../login' if !user?(session) and !room?(session, roomid)
+   #p params
    r = {'status' => '0', 'error' => 'something error message'}
    
    room = Rooms.instance($CONFIG[:rooms]).find(roomid)
-   if params["Filedata"]
-      puts "filedata = #{params["Filedata"].inspect}"
+   if params['Filedata']
+      puts "filedata = #{params['Filedata'].inspect}"
       
       # fixme: always size = 0
-      size = File.stat(params["Filedata"][:tempfile].path).size
-      p File.stat(params["Filedata"][:tempfile].path).ctime
+      size = File.stat(params['Filedata'][:tempfile].path).size
+      p File.stat(params['Filedata'][:tempfile].path).ctime
       files = Files.instance($CONFIG[:files])
-      file_id = files.add({
-         :name => params["Filedata"][:filename],
-         :type => params["Filedata"][:type],
+      file = files.add({
+         :name => params['Filedata'][:filename],
+         :type => params['Filedata'][:type],
          :note => "", #params[:note],
          :size => size
          })
       
-      room['files'] << file_id
+      room['files'] << file['id']
       Rooms.instance($CONFIG[:rooms]).flush
       
       # at windows, cannot mv.
-      FileUtils.cp(params["Filedata"][:tempfile].path, "#{$CONFIG[:files_dir]}#{file_id}")
+      FileUtils.cp(params['Filedata'][:tempfile].path, "#{$CONFIG[:files_dir]}#{file['id']}")
+      
+      r['name'] = file['name']
+      r['type'] = file['type']
+      r['note'] = file['note']
+      r['size'] = file['size']
+      r['date'] = file['date'].strftime("%Y-%m-%d %H:%M")
+      r['id'] = file['id']
    end
    
    content_type :json
@@ -249,7 +295,7 @@ post '/:roomid/fancy' do |roomid|
 end
 
 get '/:roomid/:fileid' do |roomid, fileid|
-   redirect '../login' if !user?(session) and !room?(session)
+   redirect '../login' if !user?(session) and !room?(session, roomid)
    
    file = Files.instance($CONFIG[:files]).find(fileid.to_i)
    if file
@@ -262,7 +308,7 @@ get '/:roomid/:fileid' do |roomid, fileid|
 end
 
 get '/:roomid' do |roomid|
-   redirect './login' if !user?(session) and !room?(session)
+   redirect './login' if !user?(session) and !room?(session, roomid)
    room = Rooms.instance($CONFIG[:rooms]).find(roomid)
    files = Files.instance($CONFIG[:files])
    
@@ -279,7 +325,7 @@ get '/:roomid' do |roomid|
 end
 
 post '/:roomid' do |roomid|
-   redirect './login' if !user?(session) and !room?(session)
+   redirect './login' if !user?(session) and !room?(session, roomid)
    
    room = Rooms.instance($CONFIG[:rooms]).find(roomid)
    if params[:upfile]

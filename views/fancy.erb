@@ -3,22 +3,50 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
-        <link rel="stylesheet" type="text/css" href="tesso.css"/>
+        <link rel="stylesheet" type="text/css" href="../tesso.css"/>
         <title><%= room["name"] %>'s files | tesso</title>
 
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.2/mootools.js"></script>
-        <script type="text/javascript" src="Fx.ProgressBar.js"></script>
-        <script type="text/javascript" src="Swiff.Uploader.js"></script>
-        <script type="text/javascript" src="FancyUpload3.Attach.js"></script>
+        <script type="text/javascript" src="../Fx.ProgressBar.js"></script>
+        <script type="text/javascript" src="../Swiff.Uploader.js"></script>
+        <script type="text/javascript" src="../FancyUpload3.Attach.js"></script>
         <script type="text/javascript">
+
+var update_file_list = function() {
+        var request = new Request.JSON({
+            url: './fancy.json',
+            onComplete: function(objs) {
+                alert(objs);
+
+                for (var i = 0; i < objs.length; i++) {
+                    if (i % 2) {
+                        tr = new Element('tr', {
+                            'styles': {'background-color': '#ccccdd'}
+                        }).inject($('file-list'));
+                    } else {
+                        tr = new Element('tr', {
+                            'styles': {'background-color': '#f6f6ff'}
+                        }).inject($('file-list'));
+                    }
+                    new Element('td', {'text': objs[i]['name']}).inject(tr);
+                    new Element('td', {'text': objs[i]['size']}).inject(tr);
+                    new Element('td', {'text': objs[i]['note']}).inject(tr);
+                    new Element('td', {'text': objs[i]['date']}).inject(tr);
+                    new Element('td', {'text': 'download | edit | delete'}).inject(tr);
+                }
+
+            }
+        }).send();
+}
             //<![CDATA[
             window.addEvent('domready', function() {
 
                 var up = new FancyUpload3.Attach('demo-list', '#demo-attach, #demo-attach-2', {
-                    path: 'Swiff.Uploader.swf',
-                    url: './<%= room['id'] %>/fancy',
+                    path: '../Swiff.Uploader.swf',
+                    url: '../<%= room['id'] %>/fancy',
                     fileSizeMax: 2 * 1024 * 1024 * 1024,
                     verbose: true,
+
                     onSelectFail: function(files) {
                         files.each(function(file) {
                             new Element('li', {
@@ -34,9 +62,25 @@
                         }, this);
                     },
 
-                    onFileSuccess: function(file) {
+                    onFileSuccess: function(file, response) {
                         new Element('input', {type: 'checkbox', 'checked': true}).inject(file.ui.element, 'top');
                         file.ui.element.highlight('#e6efc2');
+
+                        tr = new Element('tr', {
+                            'styles': {'background-color': '#f6f6ff'}
+                        }).inject($('file-list'));
+
+                        f = JSON.decode(response)
+                        new Element('td', {'text': f['name']}).inject(tr);
+                        new Element('td', {'text': f['size']}).inject(tr);
+                        new Element('td', {'text': f['note']}).inject(tr);
+                        new Element('td', {'text': f['date']}).inject(tr);
+                        td = new Element('td').inject(tr);
+                        new Element('a', {'href': f['id'], 'text': 'download'}).inject(td);
+                        td.appendText(' | ');
+                        new Element('a', {'href': f['id'], 'text': 'edit'}).inject(td);
+                        td.appendText(' | ');
+                        new Element('a', {'href': f['id'], 'text': 'delete'}).inject(td);
                     },
 
                     onFileError: function(file) {
@@ -55,14 +99,13 @@
                         file.ui.element.getElement('.file-error').destroy();
 
                         file.ui.cancel.set('html', 'Cancel').removeEvents().addEvent('click', function() {
-                        file.remove();
-                        return false;
-                    });
+                            file.remove();
+                            return false;
+                        })
 
-                this.start();
-            }
-        });
-
+                        this.start();
+                    },
+                });
     });
 
         //]]>
@@ -83,7 +126,7 @@ a.hover {
 	color: #514721;
 	padding-left: 48px;
 	line-height: 24px;
-	background: url(assets/error.png) no-repeat 24px 5px;
+	background: url(../assets/error.png) no-repeat 24px 5px;
 	margin-bottom: 1px;
 }
 #demo-list .file-invalid span {
@@ -94,7 +137,7 @@ a.hover {
 #demo-list .file {
 	line-height: 2em;
 	padding-left: 22px;
-	background: url(assets/attach.png) no-repeat 1px 50%;
+	background: url(../assets/attach.png) no-repeat 1px 50%;
 }
 
 #demo-list .file span,
@@ -114,7 +157,7 @@ a.hover {
 	width: 125px;
 	height: 12px;
 	vertical-align: middle;
-	background-image: url(assets/progress-bar/progress.gif);
+	background-image: url(../assets/progress-bar/progress.gif);
 }
 	</style>
     </head>
@@ -123,12 +166,13 @@ a.hover {
             <div id="content_container">
                 <div id="content">
 
+
                     <div class="page_header">
                         <span style="float: right;"><h1><%= room["name"] %></h1></span>
                         <h1><%= room["files"].size.to_s %> Files</h1>
                     </div>
 
-                    <table cellspacing="0">
+                    <table cellspacing="0" id="file-list">
                         <tr>
                             <td>File Name</td>
                             <td>File Size</td>
@@ -143,7 +187,7 @@ a.hover {
                             <td class="file_size"><%= f['size'] %></td>
                             <td class="file_note"><%= f['note'] %></td>
                             <td class="file_date"><%= f['date'].strftime("%Y-%m-%d %H:%M") %></td>
-                            <td class="operation"><a href="./<%= room['id'] %>/<%= f['id'] %>">download</a> | <a href="./<%= room['id'] %>/<%= f['id'] %>/edit">edit</a> | <a href="./<%= room['id'] %>/<%= f['id'] %>/delete">delete</a></td>
+                            <td class="operation"><a href="../<%= room['id'] %>/<%= f['id'] %>">download</a> | <a href="../<%= room['id'] %>/<%= f['id'] %>/edit">edit</a> | <a href="../<%= room['id'] %>/<%= f['id'] %>/delete">delete</a></td>
                         </tr>
                         <% end %>
                     </table>
@@ -157,7 +201,7 @@ a.hover {
                         </div>
                     </div>
 
-                    <p><a href="./rooms">back to rooms.</a> <a href="./logout">logout.</a></p>
+                    <p><a href="../rooms">back to rooms.</a> <a href="../logout">logout.</a></p>
 
                 </div>
             </div>

@@ -182,7 +182,7 @@ FancyUpload3.Attach.File = new Class({
 	},
 
 	onError: function() {
-		this.ui.element.addClass('file-failed');		
+		this.ui.element.addClass('file-failed');
 	}
 
 });

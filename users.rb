@@ -170,7 +170,7 @@ class Files
       
       flush
       
-      id
+      file
    end
    
    def edit(params)
