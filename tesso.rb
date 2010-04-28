@@ -327,25 +327,25 @@ post '/:roomid' do |roomid|
    redirect './login' if !user?(session) and !room?(session, roomid)
    
    room = Rooms.instance($CONFIG[:rooms]).find(roomid)
-   if params[:upfile]
+   if params["upfile"]
       p params
       
       # fixme: always size = 0
-      size = File.stat(params[:upfile][:tempfile].path).size
-      p File.stat(params[:upfile][:tempfile].path).ctime
+      size = File.stat(params["upfile"][:tempfile].path).size
+      p File.stat(params["upfile"][:tempfile].path).ctime
       files = Files.instance($CONFIG[:files])
-      file_id = files.add({
-         :name => params[:upfile][:filename],
-         :type => params[:upfile][:type],
-         :note => params[:note],
+      file = files.add({
+         :name => params["upfile"][:filename],
+         :type => params["upfile"][:type],
+         :note => params["note"],
          :size => size
          })
       
-      room['files'] << file_id
+      room['files'] << file['id']
       Rooms.instance($CONFIG[:rooms]).flush
       
       # at windows, cannot mv.
-      FileUtils.cp(params[:upfile][:tempfile].path, "#{$CONFIG[:files_dir]}#{file_id}")
+      FileUtils.cp(params["upfile"][:tempfile].path, "#{$CONFIG[:files_dir]}#{file['id']}")
    end
    
    files = Files.instance($CONFIG[:files])
