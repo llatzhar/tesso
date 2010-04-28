@@ -39,10 +39,11 @@ helpers do
       role?(session[:user], "user")
    end
    
-   def room?(session)
+   def room?(session, roomid)
       return false if session[:user] == nil
       rooms = Rooms.instance($CONFIG[:rooms])
-      return rooms.find(session[:user]) != nil
+      room = rooms.find(session[:user])
+      (room != nil) and (room["id"] == roomid)
    end
 end
 
@@ -164,8 +165,7 @@ post '/room/new' do
 end
 
 get '/:roomid/:fileid/delete' do |roomid, fileid|
-   # これ、認証の体をなしてないroom owner?が必要
-   redirect '../../login' if !user?(session) and !room?(session)
+   redirect '../../login' if !user?(session) and !room?(session, roomid)
    
    id = fileid.to_i
    
@@ -217,7 +217,7 @@ get '/:roomid/delete' do |roomid|
 end
 
 get '/:roomid/:fileid' do |roomid, fileid|
-   redirect '../login' if !user?(session) and !room?(session)
+   redirect '../login' if !user?(session) and !room?(session, roomid)
    
    file = Files.instance($CONFIG[:files]).find(fileid.to_i)
    if file
@@ -230,7 +230,7 @@ get '/:roomid/:fileid' do |roomid, fileid|
 end
 
 get '/:roomid' do |roomid|
-   redirect './login' if !user?(session) and !room?(session)
+   redirect './login' if !user?(session) and !room?(session, roomid)
    room = Rooms.instance($CONFIG[:rooms]).find(roomid)
    files = Files.instance($CONFIG[:files])
    
@@ -247,7 +247,7 @@ get '/:roomid' do |roomid|
 end
 
 post '/:roomid' do |roomid|
-   redirect './login' if !user?(session) and !room?(session)
+   redirect './login' if !user?(session) and !room?(session, roomid)
    
    room = Rooms.instance($CONFIG[:rooms]).find(roomid)
    if params[:upfile]
